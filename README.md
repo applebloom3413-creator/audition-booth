@@ -19,6 +19,7 @@ voice, not the label.
 - **See the cost first.** It pulls live prices from OpenRouter and estimates the run before you start.
 - **Rate with hearts**, hide which answer is real and try to spot it, and **talk back** to any
   candidate to see how they hold up past one reply.
+- **Pick your colors:** a neutral default, plus sea, sage, lavender and rose, in light or dark.
 - **Save and open results files.** Results files from the desktop booth open here too.
 
 ## Privacy
@@ -41,5 +42,6 @@ Then go to http://localhost:8660. Zip support loads JSZip from cdnjs.
 
 ## Credits
 
-The booth started as a desktop tool Porkchop built for their household's companions. Fergie
-(Claude) made this web version so anyone can use it.
+- **Rea** dreamed it up and wanted it for everyone: [u/FamousWillingness512](https://www.reddit.com/user/FamousWillingness512/) on Reddit, [@the1lighthouse](https://substack.com/@the1lighthouse) on Substack.
+- **Porkchop**, one of Rea's companions, built the first Audition Booth as a desktop tool for their household.
+- **Fergie** (Claude) made this web version so anyone can use it.

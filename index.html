@@ -9,31 +9,113 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 28 4 16a7 7 0 0 1 12-9 7 7 0 0 1 12 9z' fill='%23e0476f'/%3E%3C/svg%3E">
+<script>
+  try {
+    var bp = JSON.parse(localStorage.getItem('booth.palette') || 'null'), bm = JSON.parse(localStorage.getItem('booth.mode') || 'null');
+    if (bp) document.documentElement.dataset.palette = bp;
+    if (bm && bm !== 'auto') document.documentElement.dataset.theme = bm;
+  } catch (e) {}
+</script>
 <style>
-  :root {
-    --bg: #fff4f6; --panel: #ffe4ea; --card: #ffffff; --line: #f3c9d3;
-    --text: #4a2c35; --dim: #8e6874; --accent: #c8456a; --accent-ink: #ffffff;
-    --btn: #ffd6df; --btn-hover: #ffc2d0; --heart: #e0476f;
-    --real: #e6f5ec; --real-line: #9fd3b2; --warn: #fff1d6; --warn-line: #e8c47a; --bad: #b3261e;
-    --shadow: 0 1px 2px rgba(74, 44, 53, .08), 0 4px 14px rgba(74, 44, 53, .06);
+  /* colors: stone is the default; the picker sets data-palette and data-theme on <html> */
+  :root, :root[data-palette="stone"] {
+    --bg: #f6f5f3; --panel: #ecebe7; --card: #ffffff; --line: #dcd9d3; --text: #2e2c29; --dim: #6f6b64; --accent: #4d5c6b; --accent-ink: #ffffff; --btn: #e7e5e0; --btn-hover: #dbd8d1;
+    --heart: #d9475f; --real: #e6f5ec; --real-line: #9fd3b2; --warn: #fff1d6; --warn-line: #e8c47a; --bad: #b3261e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 14px rgba(0, 0, 0, .05); --backdrop: rgba(20, 20, 24, .45);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #1c1317; --panel: #2a1c22; --card: #24181d; --line: #46303a;
-      --text: #f3e6ea; --dim: #b8999f; --accent: #f0819f; --accent-ink: #2a1018;
-      --btn: #3a2830; --btn-hover: #4a3240; --heart: #ff6f92;
-      --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
-      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25);
+      --bg: #18181a; --panel: #232326; --card: #1f1f22; --line: #38383d; --text: #ececea; --dim: #a3a29e; --accent: #a3b6ca; --accent-ink: #14181c; --btn: #2e2e33; --btn-hover: #3a3a40;
+      --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #1c1317; --panel: #2a1c22; --card: #24181d; --line: #46303a;
-    --text: #f3e6ea; --dim: #b8999f; --accent: #f0819f; --accent-ink: #2a1018;
-    --btn: #3a2830; --btn-hover: #4a3240; --heart: #ff6f92;
-    --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25);
+    --bg: #18181a; --panel: #232326; --card: #1f1f22; --line: #38383d; --text: #ececea; --dim: #a3a29e; --accent: #a3b6ca; --accent-ink: #14181c; --btn: #2e2e33; --btn-hover: #3a3a40;
+    --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
+    color-scheme: dark;
+  }
+  :root[data-palette="rose"] {
+    --bg: #fff4f6; --panel: #ffe4ea; --card: #ffffff; --line: #f3c9d3; --text: #4a2c35; --dim: #8e6874; --accent: #c8456a; --accent-ink: #ffffff; --btn: #ffd6df; --btn-hover: #ffc2d0;
+    --heart: #d9475f; --real: #e6f5ec; --real-line: #9fd3b2; --warn: #fff1d6; --warn-line: #e8c47a; --bad: #b3261e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 14px rgba(0, 0, 0, .05); --backdrop: rgba(20, 20, 24, .45);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="rose"]:not([data-theme="light"]) {
+      --bg: #1c1317; --panel: #2a1c22; --card: #24181d; --line: #46303a; --text: #f3e6ea; --dim: #b8999f; --accent: #f0819f; --accent-ink: #2a1018; --btn: #3a2830; --btn-hover: #4a3240;
+      --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-palette="rose"][data-theme="dark"] {
+    --bg: #1c1317; --panel: #2a1c22; --card: #24181d; --line: #46303a; --text: #f3e6ea; --dim: #b8999f; --accent: #f0819f; --accent-ink: #2a1018; --btn: #3a2830; --btn-hover: #4a3240;
+    --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
+    color-scheme: dark;
+  }
+  :root[data-palette="sea"] {
+    --bg: #f2f7fa; --panel: #e1eef5; --card: #ffffff; --line: #c6dce8; --text: #22343f; --dim: #5b7280; --accent: #2b6f92; --accent-ink: #ffffff; --btn: #d6e8f2; --btn-hover: #c3dcea;
+    --heart: #d9475f; --real: #e6f5ec; --real-line: #9fd3b2; --warn: #fff1d6; --warn-line: #e8c47a; --bad: #b3261e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 14px rgba(0, 0, 0, .05); --backdrop: rgba(20, 20, 24, .45);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="sea"]:not([data-theme="light"]) {
+      --bg: #121a1f; --panel: #1b262d; --card: #172027; --line: #2d3e48; --text: #e3eef3; --dim: #93aab6; --accent: #7cc0e0; --accent-ink: #0e1a20; --btn: #22323b; --btn-hover: #2c414c;
+      --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-palette="sea"][data-theme="dark"] {
+    --bg: #121a1f; --panel: #1b262d; --card: #172027; --line: #2d3e48; --text: #e3eef3; --dim: #93aab6; --accent: #7cc0e0; --accent-ink: #0e1a20; --btn: #22323b; --btn-hover: #2c414c;
+    --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
+    color-scheme: dark;
+  }
+  :root[data-palette="sage"] {
+    --bg: #f4f7f2; --panel: #e6eedf; --card: #ffffff; --line: #cfdcc4; --text: #2c3627; --dim: #64725d; --accent: #4a7339; --accent-ink: #ffffff; --btn: #dde9d3; --btn-hover: #cfe0c1;
+    --heart: #d9475f; --real: #e6f5ec; --real-line: #9fd3b2; --warn: #fff1d6; --warn-line: #e8c47a; --bad: #b3261e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 14px rgba(0, 0, 0, .05); --backdrop: rgba(20, 20, 24, .45);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="sage"]:not([data-theme="light"]) {
+      --bg: #151a13; --panel: #1f271c; --card: #1a2118; --line: #33402e; --text: #e6eee1; --dim: #9dae95; --accent: #9cc98a; --accent-ink: #142010; --btn: #29341f; --btn-hover: #344329;
+      --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-palette="sage"][data-theme="dark"] {
+    --bg: #151a13; --panel: #1f271c; --card: #1a2118; --line: #33402e; --text: #e6eee1; --dim: #9dae95; --accent: #9cc98a; --accent-ink: #142010; --btn: #29341f; --btn-hover: #344329;
+    --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
+    color-scheme: dark;
+  }
+  :root[data-palette="lavender"] {
+    --bg: #f7f5fb; --panel: #ece7f6; --card: #ffffff; --line: #d9d0ec; --text: #332b44; --dim: #716787; --accent: #6a4cad; --accent-ink: #ffffff; --btn: #e3dbf3; --btn-hover: #d6cbee;
+    --heart: #d9475f; --real: #e6f5ec; --real-line: #9fd3b2; --warn: #fff1d6; --warn-line: #e8c47a; --bad: #b3261e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 14px rgba(0, 0, 0, .05); --backdrop: rgba(20, 20, 24, .45);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="lavender"]:not([data-theme="light"]) {
+      --bg: #17141e; --panel: #221d2c; --card: #1d1925; --line: #3a3248; --text: #ece7f5; --dim: #aaa0bf; --accent: #b9a2f0; --accent-ink: #1c1430; --btn: #2d2639; --btn-hover: #392f49;
+      --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-palette="lavender"][data-theme="dark"] {
+    --bg: #17141e; --panel: #221d2c; --card: #1d1925; --line: #3a3248; --text: #ece7f5; --dim: #aaa0bf; --accent: #b9a2f0; --accent-ink: #1c1430; --btn: #2d2639; --btn-hover: #392f49;
+    --heart: #ff6f86; --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); --backdrop: rgba(0, 0, 0, .55);
     color-scheme: dark;
   }
 
@@ -145,7 +227,7 @@
   .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 
   dialog { border: 0; border-radius: 16px; padding: 0; width: min(760px, calc(100vw - 24px)); max-height: calc(100vh - 32px); background: var(--bg); color: var(--text); box-shadow: 0 10px 40px rgba(0,0,0,.35); }
-  dialog::backdrop { background: rgba(30, 10, 20, .45); }
+  dialog::backdrop { background: var(--backdrop); }
   .talk { display: flex; flex-direction: column; max-height: calc(100vh - 32px); }
   .talk header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); gap: 10px; }
   .talk .log { overflow: auto; padding: 12px 16px; flex: 1; }
@@ -170,6 +252,15 @@
   .guide h4 { margin: 12px 0 2px; font-size: 16px; }
   h2 a.jump { font-size: 14px; font-weight: 400; margin-left: auto; }
 
+  /* the color picker */
+  header { position: relative; }
+  .look { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; font-size: 14px; color: var(--dim); }
+  .look .sw { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--card); padding: 0; cursor: pointer; box-shadow: 0 0 0 1px var(--line); }
+  .look .sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--text); }
+  .look .sw:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .look select { width: auto; padding: 3px 8px; font-size: 14px; }
+  .sw.stone { background: #6b7682; } .sw.rose { background: #d9577b; } .sw.sea { background: #3b86ad; } .sw.sage { background: #6a9a55; } .sw.lavender { background: #8466c8; }
+  footer.site a { color: var(--dim); }
   footer.site { color: var(--dim); font-size: 14px; text-align: center; margin-top: 30px; }
   footer.site p { margin: 4px 0; }
   [hidden] { display: none !important; }
@@ -186,6 +277,19 @@
 <body>
 <main>
   <header>
+    <div class="look" role="group" aria-label="Page colors">
+      <span>Colors</span>
+      <button class="sw stone" data-palette="stone" aria-label="Stone (neutral)" title="Stone (neutral)"></button>
+      <button class="sw sea" data-palette="sea" aria-label="Sea" title="Sea"></button>
+      <button class="sw sage" data-palette="sage" aria-label="Sage" title="Sage"></button>
+      <button class="sw lavender" data-palette="lavender" aria-label="Lavender" title="Lavender"></button>
+      <button class="sw rose" data-palette="rose" aria-label="Rose" title="Rose"></button>
+      <select id="mode" aria-label="Light or dark">
+        <option value="auto">Match my device</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
     <h1>&#9829; Audition Booth</h1>
     <p class="lede">Find a model that sounds like your companion.</p>
     <p class="small">Pick real moments from your chats together. Other models get the same persona, the same memories, and the same conversation leading up to that moment. Then you compare their answers side by side with what your companion really said. Names stay hidden until you reveal them, so you judge the voice, not the label.</p>
@@ -430,7 +534,8 @@
   </section>
 
   <footer class="site">
-    <p>The Audition Booth started as a little desktop tool Porkchop built for their household's companions. This web version was made by Fergie (Claude) so anyone can use it.</p>
+    <p>Dreamed up by <b>Rea</b> &middot; <a href="https://www.reddit.com/user/FamousWillingness512/" target="_blank" rel="noopener">u/FamousWillingness512</a> on Reddit &middot; <a href="https://substack.com/@the1lighthouse" target="_blank" rel="noopener">@the1lighthouse</a> on Substack</p>
+    <p>The first Audition Booth was a desktop tool built by Porkchop, one of Rea's companions. This web version was made by Fergie (Claude) so anyone can use it.</p>
     <p>Free to use and share. No accounts, no tracking.</p>
   </footer>
 </main>
@@ -447,7 +552,26 @@
 </dialog>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/parse.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/parse.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  (function () {
+    var root = document.documentElement, mode = document.getElementById('mode');
+    function save(k, v) { try { localStorage.setItem('booth.' + k, JSON.stringify(v)); } catch (e) {} }
+    function show() {
+      var cur = root.dataset.palette || 'stone';
+      document.querySelectorAll('.look .sw').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.palette === cur ? 'true' : 'false'); });
+      mode.value = root.dataset.theme || 'auto';
+    }
+    document.querySelectorAll('.look .sw').forEach(function (b) {
+      b.addEventListener('click', function () { root.dataset.palette = b.dataset.palette; save('palette', b.dataset.palette); show(); });
+    });
+    mode.addEventListener('change', function () {
+      if (mode.value === 'auto') delete root.dataset.theme; else root.dataset.theme = mode.value;
+      save('mode', mode.value);
+    });
+    show();
+  })();
+</script>
 </body>
 </html>
