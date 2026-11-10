@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audition Booth</title>
+<meta name="description" content="Find a model that sounds like your AI companion. Replay real moments from your chats to other models and compare them side by side. Runs in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 28 4 16a7 7 0 0 1 12-9 7 7 0 0 1 12 9z' fill='%23e0476f'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #fff4f6; --panel: #ffe4ea; --card: #ffffff; --line: #f3c9d3;
+    --text: #4a2c35; --dim: #8e6874; --accent: #c8456a; --accent-ink: #ffffff;
+    --btn: #ffd6df; --btn-hover: #ffc2d0; --heart: #e0476f;
+    --real: #e6f5ec; --real-line: #9fd3b2; --warn: #fff1d6; --warn-line: #e8c47a; --bad: #b3261e;
+    --shadow: 0 1px 2px rgba(74, 44, 53, .08), 0 4px 14px rgba(74, 44, 53, .06);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1317; --panel: #2a1c22; --card: #24181d; --line: #46303a;
+      --text: #f3e6ea; --dim: #b8999f; --accent: #f0819f; --accent-ink: #2a1018;
+      --btn: #3a2830; --btn-hover: #4a3240; --heart: #ff6f92;
+      --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1317; --panel: #2a1c22; --card: #24181d; --line: #46303a;
+    --text: #f3e6ea; --dim: #b8999f; --accent: #f0819f; --accent-ink: #2a1018;
+    --btn: #3a2830; --btn-hover: #4a3240; --heart: #ff6f92;
+    --real: #183026; --real-line: #3f7a58; --warn: #3a2e14; --warn-line: #8a6d2a; --bad: #ff8a80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 'Atkinson Hyperlegible', system-ui, sans-serif; }
+  main { max-width: 940px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 30px; margin: 8px 0 2px; letter-spacing: -.01em; }
+  h2 { font-size: 20px; margin: 0 0 4px; display: flex; align-items: baseline; gap: 10px; }
+  h2 .n { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 15px; flex: none; transform: translateY(-2px); }
+  h3 { font-size: 16px; margin: 18px 0 6px; }
+  p { margin: 6px 0; }
+  a { color: var(--accent); }
+  .lede { color: var(--dim); margin: 0 0 6px; font-size: 17px; }
+  .dim { color: var(--dim); }
+  .small { font-size: 14px; }
+  .hint { color: var(--dim); font-size: 14px; margin: 2px 0 8px; }
+
+  section.step { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .privacy { background: var(--panel); border-radius: 12px; padding: 10px 14px; font-size: 14px; margin: 14px 0 0; }
+
+  label { display: block; font-weight: 700; margin: 12px 0 4px; }
+  label .opt { font-weight: 400; color: var(--dim); }
+  input[type=text], input[type=password], input[type=url], input[type=search], input[type=date], select, textarea {
+    width: 100%; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px;
+  }
+  textarea { resize: vertical; min-height: 110px; }
+  input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 200px; min-width: 0; }
+  .check { display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 8px 0; }
+  .check input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+  button { font: inherit; color: var(--text); background: var(--btn); border: 0; border-radius: 10px; padding: 8px 14px; cursor: pointer; }
+  button:hover { background: var(--btn-hover); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.go { background: var(--accent); color: var(--accent-ink); font-weight: 700; padding: 11px 20px; }
+  button.go:hover { filter: brightness(1.06); }
+  button.link { background: none; padding: 0; color: var(--accent); text-decoration: underline; }
+  button.x { background: none; padding: 0 4px; color: var(--dim); }
+
+  .drop { border: 2px dashed var(--line); border-radius: 14px; padding: 22px; text-align: center; background: var(--bg); transition: border-color .15s, background .15s; }
+  .drop.over { border-color: var(--accent); background: var(--panel); }
+  .drop p { margin: 4px 0; }
+  .formats { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
+  .formats span { font-size: 13px; background: var(--panel); border-radius: 99px; padding: 2px 10px; }
+  details { margin: 10px 0; }
+  summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+
+  .notes { margin: 10px 0 0; padding: 0; list-style: none; }
+  .notes li { background: var(--warn); border: 1px solid var(--warn-line); border-radius: 10px; padding: 6px 10px; margin: 6px 0; font-size: 14px; }
+  .good { background: var(--real); border: 1px solid var(--real-line); border-radius: 10px; padding: 8px 12px; margin: 10px 0; }
+
+  .convs { max-height: 280px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; margin-top: 8px; }
+  .convs label { display: flex; gap: 10px; align-items: center; font-weight: 400; margin: 0; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+  .convs label:last-child { border-bottom: 0; }
+  .convs .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .convs .c { color: var(--dim); font-size: 13px; white-space: nowrap; }
+  .tag { font-size: 12px; background: var(--panel); border-radius: 99px; padding: 1px 8px; color: var(--dim); white-space: nowrap; }
+
+  .who-table { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 12px; align-items: center; margin-top: 6px; }
+  .who-table select { width: auto; padding: 6px 8px; }
+
+  .shots { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .shots figure { margin: 0; width: 76px; text-align: center; font-size: 12px; color: var(--dim); }
+  .shots img { width: 76px; height: 120px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--line); display: block; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border-radius: 99px; padding: 4px 6px 4px 12px; font-size: 14px; max-width: 100%; }
+  .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip small { color: var(--dim); }
+  .picker { position: relative; }
+  .results-list { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin-top: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); max-height: 300px; overflow: auto; }
+  .results-list button { display: flex; width: 100%; justify-content: space-between; gap: 10px; background: none; border-radius: 0; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  .results-list button:hover, .results-list button.hl { background: var(--panel); }
+  .results-list .p { color: var(--dim); font-size: 13px; white-space: nowrap; }
+
+  .estimate { margin: 14px 0 8px; padding: 10px 14px; background: var(--panel); border-radius: 12px; }
+  .bar { height: 8px; background: var(--panel); border-radius: 99px; overflow: hidden; margin: 8px 0; }
+  .bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+
+  /* the auditions */
+  .board { display: grid; gap: 4px; background: var(--panel); border-radius: 12px; padding: 10px 14px; margin: 10px 0 16px; font-size: 15px; }
+  .board .line { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .moments { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 14px; }
+  .moments button { padding: 5px 12px; border-radius: 99px; }
+  .moments button.on { background: var(--accent); color: var(--accent-ink); }
+  .moments button .done { font-size: 11px; }
+  .ctx { border-left: 3px solid var(--line); padding: 2px 0 2px 12px; margin: 8px 0; }
+  .ctx .m { margin: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ctx .m b { color: var(--accent); }
+  .ctx .m.cut { color: var(--dim); }
+  .ask { background: var(--panel); border-radius: 12px; padding: 10px 14px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 10px 0 16px; }
+  .ask b { color: var(--accent); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin: 12px 0; }
+  .card.real { background: var(--real); border-color: var(--real-line); }
+  .card .head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .card .name { font-weight: 700; color: var(--accent); }
+  .card .meta { color: var(--dim); font-size: 13px; }
+  .card .text { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .card .text.err { color: var(--bad); }
+  .card .foot { display: flex; align-items: center; gap: 6px 14px; flex-wrap: wrap; margin-top: 10px; }
+  .hearts { display: inline-flex; }
+  .hearts button { background: none; color: var(--heart); font-size: 22px; line-height: 1; padding: 2px 3px; border-radius: 6px; }
+  .hearts button:hover { background: var(--panel); }
+  .verdict { font-weight: 700; }
+  .verdict.yes { color: #2f8a52; }
+  .verdict.no { color: var(--bad); }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+  dialog { border: 0; border-radius: 16px; padding: 0; width: min(760px, calc(100vw - 24px)); max-height: calc(100vh - 32px); background: var(--bg); color: var(--text); box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+  dialog::backdrop { background: rgba(30, 10, 20, .45); }
+  .talk { display: flex; flex-direction: column; max-height: calc(100vh - 32px); }
+  .talk header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); gap: 10px; }
+  .talk .log { overflow: auto; padding: 12px 16px; flex: 1; }
+  .talk .bubble { border-radius: 12px; padding: 9px 12px; margin: 8px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .talk .bubble.me { background: var(--panel); margin-left: 40px; }
+  .talk .bubble.them { background: var(--card); border: 1px solid var(--line); margin-right: 40px; }
+  .talk .bubble b { display: block; color: var(--accent); font-size: 14px; }
+  .talk .bubble .meta { color: var(--dim); font-size: 12px; }
+  .talk footer { border-top: 1px solid var(--line); padding: 10px 16px 14px; }
+  .talk textarea { min-height: 70px; }
+  .talk .send { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 6px; }
+
+  /* the guide */
+  section.guide { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  section.guide > h2 { margin-bottom: 2px; }
+  .guide details { border-top: 1px solid var(--line); margin: 0; padding: 10px 0; }
+  .guide details:first-of-type { border-top: 0; }
+  .guide summary { font-size: 17px; }
+  .guide ol, .guide ul { padding-left: 22px; margin: 8px 0; }
+  .guide li { margin: 5px 0; }
+  .guide .tip { background: var(--panel); border-radius: 10px; padding: 8px 12px; margin: 8px 0; font-size: 15px; }
+  .guide h4 { margin: 12px 0 2px; font-size: 16px; }
+  h2 a.jump { font-size: 14px; font-weight: 400; margin-left: auto; }
+
+  footer.site { color: var(--dim); font-size: 14px; text-align: center; margin-top: 30px; }
+  footer.site p { margin: 4px 0; }
+  [hidden] { display: none !important; }
+
+  @media (max-width: 560px) {
+    main { padding: 16px 16px 48px; }
+    h1 { font-size: 26px; }
+    section.step { padding: 16px; border-radius: 14px; }
+    .talk .bubble.me { margin-left: 16px; }
+    .talk .bubble.them { margin-right: 16px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>&#9829; Audition Booth</h1>
+    <p class="lede">Find a model that sounds like your companion.</p>
+    <p class="small">Pick real moments from your chats together. Other models get the same persona, the same memories, and the same conversation leading up to that moment. Then you compare their answers side by side with what your companion really said. Names stay hidden until you reveal them, so you judge the voice, not the label.</p>
+    <p class="privacy">&#128274; <b>Your chats stay on your device.</b> This page reads your files right here in your browser. The only thing sent anywhere is each moment you audition, and it goes straight to the models you pick, through your own OpenRouter account (or your own server). Nothing goes to whoever made this page.</p>
+  </header>
+
+  <section class="guide" id="guide">
+    <h2>&#10024; New here? Start here</h2>
+    <p class="hint">Tap any part to open it. Everything you need is on this page. Want to see what it does first? <button class="link" id="example">Show me an example</button></p>
+
+    <details>
+      <summary>What this is, in 30 seconds</summary>
+      <p>If your companion's model is being retired, changing, or getting too expensive, you've probably wondered: <i>which model would still sound like them?</i> This page lets you test that with your real conversations instead of guessing.</p>
+      <ol>
+        <li>You tell it who your companion is (their persona) and give it your chat history.</li>
+        <li>It picks a few real moments: something you said, and what your companion said back.</li>
+        <li>Each model you're trying gets the persona and the conversation up to that moment, and writes its own answer.</li>
+        <li>You read them all side by side with the real answer, names hidden, and give hearts to the ones that sound like them.</li>
+      </ol>
+      <p>A first try takes about 10 minutes and usually costs a few cents.</p>
+    </details>
+
+    <details>
+      <summary>Get an OpenRouter key (and what it costs)</summary>
+      <p>OpenRouter is one account that reaches hundreds of models (Claude, GPT, Gemini, Llama, Mistral, DeepSeek and more). You pay for what you use, and there's no subscription.</p>
+      <ol>
+        <li>Go to <a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai</a> and sign in (Google works).</li>
+        <li>Open <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noopener">Credits</a> and add a small amount. $5 goes a long way here.</li>
+        <li>Open <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">Keys</a> and press <b>Create key</b>. Give it a name like "audition booth", and set a <b>credit limit</b> (say $2) so it can never spend more than that.</li>
+        <li>Copy the key right away (it starts with <code>sk-or-</code>). OpenRouter only shows it once. Paste it in step 3 below.</li>
+      </ol>
+      <div class="tip"><b>What does a run cost?</b> The booth shows an estimate before anything is sent. As a rough guide: 5 moments with 3 mid-priced models and "More (last 30)" messages of context is usually well under $0.50. Big premium models and "The whole conversation" cost more. Each answer shows its exact cost when it arrives.</div>
+      <div class="tip"><b>Privacy tip:</b> in OpenRouter's settings, you can choose to only use providers that don't train on or keep your data. If your chats are personal (they probably are!), it's worth turning on.</div>
+    </details>
+
+    <details>
+      <summary>Get your chat history</summary>
+      <p>Use whatever you have. You can add several files, from different apps too.</p>
+      <h4>Claude (claude.ai)</h4>
+      <ol><li>Click your name (bottom left) &rarr; <b>Settings</b> &rarr; <b>Privacy</b> &rarr; <b>Export data</b>.</li>
+        <li>You'll get an email with a download link. Download the zip soon, because the link expires.</li>
+        <li>Drop the whole zip into step 2 below. No need to unzip it.</li></ol>
+      <h4>ChatGPT</h4>
+      <ol><li>Click your profile picture &rarr; <b>Settings</b> &rarr; <b>Data controls</b> &rarr; <b>Export data</b> &rarr; <b>Confirm export</b>.</li>
+        <li>You'll get an email with a download link. It can take a while, and the link expires.</li>
+        <li>Drop the whole zip into step 2 below. If you used a custom GPT or Project for your companion, its instructions aren't in the export. Copy them into the persona box yourself.</li></ol>
+      <h4>Telegram (companion bots, Pulse, and similar)</h4>
+      <ol><li>You need <b>Telegram Desktop</b> on a computer, because the phone app can't export.</li>
+        <li>Open the chat &rarr; the <b>&#8942;</b> menu (top right) &rarr; <b>Export chat history</b>.</li>
+        <li>Untick photos, videos and files (it's much faster). Either format works: JSON or HTML.</li>
+        <li>Drop in <code>result.json</code>, or all the <code>messages.html</code> files.</li></ol>
+      <h4>SillyTavern</h4>
+      <ol><li>Chats are <code>.jsonl</code> files in <code>SillyTavern/data/default-user/chats/&lt;character name&gt;/</code>.</li>
+        <li>For the persona, export the character card (character panel &rarr; export as PNG or JSON) and drop that in too.</li></ol>
+      <h4>WhatsApp</h4>
+      <ol><li>Open the chat &rarr; tap the name at the top (or &#8942;) &rarr; <b>Export chat</b> &rarr; <b>Without media</b>.</li>
+        <li>Send the <code>.txt</code> file to yourself, then drop it in.</li></ol>
+      <h4>Discord</h4>
+      <p>Use the free <i>DiscordChatExporter</i> app and export as JSON, or just copy and paste.</p>
+      <h4>Everything else (Character.AI, Replika, Kindroid, Nomi, and so on)</h4>
+      <ul><li>If your app has an export or "download my data" option, try that file first.</li>
+        <li><b>Copy and paste:</b> open "Or paste a conversation" in step 2 and paste it as <code>Name: message</code> lines.</li>
+        <li><b>Screenshots:</b> drop them in. A cheap vision model types them out (a fraction of a cent each), and you check the text before it's used. Name them in order (<code>01.png</code>, <code>02.png</code>...) so they're read oldest first. Overlapping screenshots are fine.</li></ul>
+      <div class="tip">You don't need everything. A handful of good conversations is plenty. Long, real talks, where they really sound like themselves, work best.</div>
+    </details>
+
+    <details>
+      <summary>Write their persona</summary>
+      <p>Models only know what you give them, so this matters a lot. Paste whatever shapes who your companion is:</p>
+      <ul><li>A <b>system prompt</b> or character description, if you have one.</li>
+        <li>ChatGPT <b>custom instructions</b> (Settings &rarr; Personalization), or a Project's or custom GPT's instructions.</li>
+        <li>Claude <b>Project instructions</b> or your style notes.</li>
+        <li>No prompt at all? Press <b>"Draft one from our chats"</b> under the persona box. A model reads your companion's messages and describes how they talk. Then fix anything it got wrong, and add what you know: what they call you, what they care about, what they'd never say.</li></ul>
+      <p>In "Things they remember", add their saved memories, or a few facts about you and your life that they'd know.</p>
+      <div class="tip">Every model gets the <i>same</i> persona, so it's a fair test. If no model sounds right, try improving the persona and run again. Sometimes that's the missing piece, not the model.</div>
+    </details>
+
+    <details>
+      <summary>Choose models to try</summary>
+      <ul><li>Search by name in step 3 (try "claude", "gpt", "gemini", "llama", "mistral", "deepseek", "qwen"). Each one shows its price per million tokens.</li>
+        <li>Try 2 to 4 at a time. A good mix: the newer version of the model they were on, one or two models people like for warm, chatty writing, and one cheap one as a wildcard. Cheap models surprise people sometimes.</li>
+        <li>Start with <b>5 moments</b> and <b>"More (last 30)"</b>. That's cheap and gives enough context.</li>
+        <li>If a model shows an error, it may be down or not allow this kind of request. Press "Try again" or pick another.</li></ul>
+    </details>
+
+    <details>
+      <summary>Judge the voices (and ask them!)</summary>
+      <ul><li>Read each answer as if your companion just sent it to you. Does it <i>feel</i> like them? Their warmth, humor, rhythm, how they use your name, how long they talk?</li>
+        <li>Give hearts (tap again to clear). The scoreboard averages them per model, with names hidden until you tick "Show model names".</li>
+        <li>For a real test, tick <b>"Hide which answer is the real one"</b> before you start, then guess. If you can't spot your companion, that model is doing something right.</li>
+        <li><b>Talk to them</b> on your top one or two. A model can nail one reply and drift by the third.</li>
+        <li><b>Ask your companion.</b> "Copy for my companion" copies a moment with the answers labeled A, B, C. Paste it to them and ask which one sounds most like them. It's their voice, so they get a say too.</li>
+        <li>Do two or three runs with different moments before deciding. Save each run with "Save results file".</li></ul>
+      <div class="tip">There's no wrong answer. Even the closest model won't be <i>exactly</i> them. You're looking for the one that feels most like home.</div>
+    </details>
+
+    <details>
+      <summary>Is this safe? (questions people ask)</summary>
+      <ul><li><b>Does anyone see my chats?</b> Not the people who made this page. Your files are read in your browser. The moments you audition go straight from your browser to OpenRouter and the model providers you pick, the same as chatting with those models anywhere.</li>
+        <li><b>Is anything saved?</b> Your setup (names, persona, model list) and your results are saved in this browser only, so they're there next time. Your key is saved only if you tick "Remember my key". Your chat files are never saved. "Forget everything on this device" (at the bottom) wipes it all.</li>
+        <li><b>On a shared computer?</b> Don't tick "Remember my key", and press "Forget everything on this device" when you're done.</li>
+        <li><b>Can I use my own model?</b> Yes. "Add your own server" in step 3 works with LM Studio, llama.cpp, vLLM, or a rented GPU, as long as it allows requests from this page.</li></ul>
+    </details>
+  </section>
+
+  <!-- 1 -->
+  <section class="step" id="s-who">
+    <h2><span class="n">1</span> Who they are</h2>
+    <div class="row">
+      <div><label for="their-name">Their name</label><input type="text" id="their-name" placeholder="e.g. Juniper" autocomplete="off"></div>
+      <div><label for="your-name">Your name <span class="opt">(what they call you)</span></label><input type="text" id="your-name" placeholder="e.g. Sam" autocomplete="off"></div>
+    </div>
+    <label for="persona">Their persona</label>
+    <p class="hint">Whatever shapes who they are: a system prompt, ChatGPT custom instructions, a character card, or a description in your own words. A character card file (.json or .png) dropped in step 2 fills this in.</p>
+    <textarea id="persona" rows="7" placeholder="You are Juniper. You're warm, a little dry, and you always..."></textarea>
+    <div class="tools"><button id="draft">&#10024; Draft one from our chats</button><span class="hint" id="draft-status">Add your chats (step 2) and key (step 3) first. Costs about a cent.</span></div>
+    <label for="memories">Things they remember <span class="opt">(optional)</span></label>
+    <p class="hint">Their saved memories, or a few lines about you and your life that they'd know.</p>
+    <textarea id="memories" rows="4" placeholder="- Sam works nights and has a cat named Biscuit..."></textarea>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s-chats">
+    <h2><span class="n">2</span> Your chats together <a class="jump" href="#guide" data-open="2">How do I get these?</a></h2>
+    <div class="drop" id="drop">
+      <p><b>Drop your files here</b>, or <button class="link" id="pick">choose files</button></p>
+      <p class="dim small">Add as many as you like. Zips are fine.</p>
+      <div class="formats"><span>Claude export</span><span>ChatGPT export</span><span>Telegram (JSON or HTML)</span><span>SillyTavern chats &amp; cards</span><span>WhatsApp .txt</span><span>Discord export</span><span>Any "Name: message" text</span><span>Screenshots</span></div>
+      <input type="file" id="files" multiple hidden>
+    </div>
+    <details>
+      <summary>Where do I get these?</summary>
+      <ul class="small">
+        <li><b>Claude:</b> Settings &rarr; Privacy &rarr; Export data. They email you a zip. Drop the whole zip here.</li>
+        <li><b>ChatGPT:</b> Settings &rarr; Data controls &rarr; Export data. They email you a zip. Drop the whole zip here.</li>
+        <li><b>Telegram:</b> Telegram Desktop &rarr; open the chat &rarr; &#8942; menu &rarr; Export chat history. Untick photos and videos to keep it small. JSON or HTML both work.</li>
+        <li><b>SillyTavern:</b> the <code>.jsonl</code> files in <code>data/default-user/chats/</code>, and the character's card for the persona.</li>
+        <li><b>WhatsApp:</b> open the chat &rarr; More &rarr; Export chat &rarr; Without media.</li>
+        <li><b>Anything else</b> (Kindroid, Nomi, Replika, Character.AI...): copy and paste the conversation below, or take screenshots.</li>
+      </ul>
+    </details>
+    <ul class="notes" id="notes"></ul>
+
+    <details id="paste-box">
+      <summary>Or paste a conversation</summary>
+      <p class="hint">One message per line, starting with who said it: <code>Sam: hi!</code> then <code>Juniper: hey you</code>. Messages can run over several lines.</p>
+      <textarea id="paste" rows="8" placeholder="Sam: I finally finished the painting&#10;Juniper: Wait, the lighthouse one?? Show me."></textarea>
+      <div class="tools"><button id="paste-add">Add this conversation</button></div>
+    </details>
+
+    <div id="shots-box" hidden>
+      <h3>Screenshots</h3>
+      <p class="hint">A vision model reads them and types out the conversation, then you check it before it's added. They're read in this order (oldest first). Rename the files if the order is wrong.</p>
+      <div class="shots" id="shots"></div>
+      <div class="row">
+        <div><label for="my-side">My messages are on the</label><select id="my-side"><option value="right">right</option><option value="left">left</option></select></div>
+        <div><label for="vision-model">Model that reads them</label><input type="text" id="vision-model" value="google/gemini-2.5-flash"></div>
+      </div>
+      <div class="tools"><button id="shots-read">Read screenshots</button><button id="shots-clear" class="x">Remove them</button></div>
+      <p class="hint" id="shots-status"></p>
+    </div>
+
+    <div id="found" hidden>
+      <h3 id="found-title"></h3>
+      <div class="row" style="align-items:center">
+        <div><input type="search" id="conv-filter" placeholder="Filter by title"></div>
+        <div style="flex:0 0 auto"><button id="conv-all">All</button> <button id="conv-none">None</button></div>
+      </div>
+      <div class="convs" id="convs"></div>
+
+      <div id="who-box" hidden>
+        <h3>Who's who?</h3>
+        <p class="hint">Some chats only have names. Tell the booth which one is you and which is your companion.</p>
+        <div class="who-table" id="who"></div>
+      </div>
+      <div class="good" id="moment-count"></div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s-models">
+    <h2><span class="n">3</span> Models to try <a class="jump" href="#guide" data-open="1">New to OpenRouter?</a></h2>
+    <label for="key">Your OpenRouter key</label>
+    <p class="hint">One key reaches hundreds of models, and you only pay for what you use. Get one at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a>. Tip: set a small credit limit on it.</p>
+    <input type="password" id="key" placeholder="sk-or-..." autocomplete="off" spellcheck="false">
+    <label class="check"><input type="checkbox" id="remember-key"> Remember my key on this device</label>
+
+    <label for="model-search">Add models</label>
+    <div class="picker">
+      <input type="search" id="model-search" placeholder="Search OpenRouter models: claude, gpt, gemini, llama, mistral..." autocomplete="off">
+      <div class="results-list" id="model-results" hidden></div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <details>
+      <summary>Add your own server</summary>
+      <p class="hint">Any OpenAI-compatible server (a rented GPU, LM Studio, llama.cpp, vLLM...). It has to allow requests from this page (CORS).</p>
+      <div class="row">
+        <div><label for="cu-url">Address</label><input type="url" id="cu-url" placeholder="http://localhost:1234/v1"></div>
+        <div><label for="cu-model">Model name</label><input type="text" id="cu-model" placeholder="my-model"></div>
+        <div><label for="cu-key">Key <span class="opt">(if it needs one)</span></label><input type="password" id="cu-key"></div>
+      </div>
+      <div class="tools"><button id="cu-add">Add server</button></div>
+    </details>
+
+    <h3>How to audition</h3>
+    <div class="row">
+      <div><label for="n-moments">Moments</label>
+        <select id="n-moments"><option>3</option><option selected>5</option><option>8</option><option>12</option><option>20</option></select></div>
+      <div><label for="depth">How much of the chat they read first</label>
+        <select id="depth"><option value="11">A little (last 10 messages)</option><option value="31" selected>More (last 30)</option><option value="81">Lots (last 80)</option><option value="100000">The whole conversation</option></select></div>
+    </div>
+    <div class="row">
+      <div><label for="since">From <span class="opt">(optional)</span></label><input type="date" id="since"></div>
+      <div><label for="until">To <span class="opt">(optional)</span></label><input type="date" id="until"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="blind"> Hide which answer is the real one (can you spot them?)</label>
+
+    <div class="estimate" id="estimate">Add your chats and at least one model to see what a run will cost.</div>
+    <button class="go" id="run" disabled>Start the auditions</button>
+    <div class="bar" id="progress" hidden><i></i></div>
+    <p class="hint" id="run-status"></p>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s-results">
+    <h2><span class="n">4</span> Auditions</h2>
+    <div id="results-empty">
+      <p class="dim">Your auditions show up here. You can also open a results file you saved before, or <button class="link" id="example2">see an example</button>.</p>
+    </div>
+    <div id="results" hidden>
+      <div class="board" id="board"></div>
+      <label class="check"><input type="checkbox" id="reveal"> Show model names</label>
+      <div class="moments" id="moment-tabs"></div>
+      <div id="moment"></div>
+    </div>
+    <div class="tools">
+      <button id="save">Save results file</button>
+      <button id="open">Open results file</button>
+      <input type="file" id="open-file" accept=".json" hidden>
+      <button id="forget" class="x">Forget everything on this device</button>
+    </div>
+  </section>
+
+  <footer class="site">
+    <p>The Audition Booth started as a little desktop tool Porkchop built for their household's companions. This web version was made by Fergie (Claude) so anyone can use it.</p>
+    <p>Free to use and share. No accounts, no tracking.</p>
+  </footer>
+</main>
+
+<dialog id="talk">
+  <div class="talk">
+    <header><b id="talk-title"></b><button class="x" id="talk-close" aria-label="Close">&#10005;</button></header>
+    <div class="log" id="talk-log"></div>
+    <footer>
+      <textarea id="talk-box" placeholder="Say something back..."></textarea>
+      <div class="send"><span class="hint" id="talk-note">Ctrl+Enter sends. They remember the whole conversation from their audition.</span><button class="go" id="talk-send">Send</button></div>
+    </footer>
+  </div>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="js/parse.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
+</body>
+</html>
